@@ -735,16 +735,13 @@ namespace TvPlugin
             }
 
           case GUIMessage.MessageType.GUI_MSG_WINDOW_INIT:
-            {              
-
+            {
               if (!TVHome.Connected)
               {
                 RemoteControl.Clear();
                 GUIWindowManager.ActivateWindow((int)Window.WINDOW_SETTINGS_TVENGINE);
                 return false;
               }
-
-              TVHome.WaitForGentleConnection();
 
               if (TVHome.Navigator == null)
               {
@@ -3293,7 +3290,7 @@ namespace TvPlugin
 
             Log.Debug("viewch channel:{0}", _currentChannel);
             Radio.Play();
-            if (TVHome.Card.IsTimeShifting && TVHome.Card.IdChannel == _currentProgram.ReferencedChannel().IdChannel)
+            if (_currentProgram != null && (TVHome.Card.IsTimeShifting && TVHome.Card.IdChannel == _currentProgram.ReferencedChannel().IdChannel))
             {
               g_Player.ShowFullScreenWindow();
             }
@@ -3305,8 +3302,11 @@ namespace TvPlugin
             OnSwitchMode(false);
             break;
           case 629: //stop recording
-            Schedule schedule = Schedule.FindNoEPGSchedule(_currentProgram.ReferencedChannel());
-            TVUtil.DeleteRecAndEntireSchedWithPrompt(schedule);
+            if (_currentProgram != null)
+            {
+              Schedule schedule = Schedule.FindNoEPGSchedule(_currentProgram.ReferencedChannel());
+              TVUtil.DeleteRecAndEntireSchedWithPrompt(schedule);
+            }
             Update(true); //remove RED marker
             break;
 
@@ -3327,7 +3327,7 @@ namespace TvPlugin
 
           case 637: // edit recording
           case 264: // record
-            if (_currentProgram.IdProgram == 0)
+            if (_currentProgram != null && _currentProgram.IdProgram == 0)
             {
               TVHome.StartRecordingSchedule(_currentProgram.ReferencedChannel(), true);
               _currentProgram.IsRecordingOncePending = true;

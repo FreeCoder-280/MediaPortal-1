@@ -294,17 +294,10 @@ namespace TvEngine
             FileInfo fI = new FileInfo(filename);
             filename = fI.Name;
 
-            //check if file can be opened for writing....																		
-            string path = layer.GetSetting("xmlTv", "").Value;
+            //check if file can be opened for writing....
+            string xmltvPath = layer.GetSetting("xmlTv", "").Value;
+            string path = isZip || isTvGuide ? xmltvPath + "\\" + filename : xmltvPath + "\\tvguide.xml";
 
-            if (isTvGuide || isZip)
-            {
-              path = path + @"\" + filename;
-            }
-            else
-            {
-              path = path + @"\tvguide.xml";
-            }
 
             bool waitingForFileAccess = true;
             int retries = 0;
@@ -652,6 +645,19 @@ namespace TvEngine
       {
         string folder = layer.GetSetting("xmlTv", DefaultOutputFolder).Value;
         string URL = layer.GetSetting("xmlTvRemoteURL", "").Value;
+        if (layer.GetSetting("UseKazer", "").Value == "true")
+          URL = layer.GetSetting("KazerRemoteURL", "").Value;
+        if (layer.GetSetting("UseZguideTV", "").Value == "true")
+        {
+          if (layer.GetSetting("UseZguideTNT", "").Value == "true")
+          {
+            URL = layer.GetSetting("ZguideTNTRemoteURL", "").Value;
+          }
+          if (layer.GetSetting("UseZguideComplet", "").Value == "true")
+          {
+            URL = layer.GetSetting("ZguideCompletRemoteURL", "").Value;
+          }
+        }
         RetrieveRemoteFile(folder, URL);
       }
       else
